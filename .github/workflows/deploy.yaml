@@ -1,0 +1,40 @@
+name: CI/CD for GainWay
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout the repository code
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # Step 2: Deploy to Lightsail via SSH
+    - name: Deploy to Lightsail via SSH
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+          cd /var/www/gainway/
+          git fetch --all
+          git reset --hard origin/main
+
+          # Install backend dependencies and restart server
+          cd backend/
+          npm install
+          pm2 restart server.js
+
+          # Build and deploy frontend
+          cd ../frontend/
+          npm install
+          npm run build
+          sudo rm -rf /var/www/html/*
+          sudo cp -r dist/* /var/www/html/
