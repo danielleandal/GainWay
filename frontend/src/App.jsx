@@ -4,7 +4,7 @@ function App() {
   return (
     <>
       <div>
-           <h1>GainWay</h1>
+           <h1>GainWay Hello</h1>
       </div>
 
     
